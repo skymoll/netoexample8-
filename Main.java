@@ -1,78 +1,23 @@
-public abstract class Account {
-    protected long balance;
+import java.time.LocalDateTime;
 
-    public Account(long balance) {
-        this.balance = balance;
-    }
+public interface Logger {
+    void log(String msg);
+}
 
-    public abstract boolean add(long amount);
-
-    public abstract boolean pay(long amount);
-
-    public boolean transfer(Account account, long amount) {
-        if (this.pay(amount)) {
-            if (account.add(amount)) {
-                return true;
-            } else {
-                this.add(amount);
-            }
-        }
-        return false;
-    }
-
-    public long getBalance() {
-        return balance;
+class SimpleLogger implements Logger {
+    @Override
+    public void log(String msg) {
+        System.out.println("[" + LocalDateTime.now() + "] " + msg);
     }
 }
 
-class SimpleAccount extends Account {
-
-    public SimpleAccount(long balance) {
-        super(balance);
-    }
+class SmartLogger implements Logger {
+    private int count = 0;
 
     @Override
-    public boolean add(long amount) {
-        if (amount < 0) {
-            return false;
-        }
-        balance += amount;
-        return true;
-    }
-
-    @Override
-    public boolean pay(long amount) {
-        if (amount < 0 || balance < amount) {
-            return false;
-        }
-        balance -= amount;
-        return true;
-    }
-}
-
-class CreditAccount extends Account {
-    private final long creditLimit;
-
-    public CreditAccount(long balance, long creditLimit) {
-        super(balance > 0 ? 0 : balance);
-        this.creditLimit = creditLimit < 0 ? creditLimit : -creditLimit;
-    }
-
-    @Override
-    public boolean add(long amount) {
-        if (amount < 0 || balance + amount > 0) {
-            return false;
-        }
-        balance += amount;
-        return true;
-    }
-
-    @Override
-    public boolean pay(long amount) {
-        if (amount < 0 || balance - amount < creditLimit) {
-            return false;
-        }
-        balance -= amount;
-        return true;
+    public void log(String msg) {
+        count++;
+        String level = msg.toLowerCase().contains("error") ? "ERROR" : "INFO";
+        System.out.println(level + "#" + count + " [" + LocalDateTime.now() + "] " + msg);
     }
 }
